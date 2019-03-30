@@ -36,7 +36,7 @@ public class ExampleInstrumentedTest {
         MyJson json = new MyJson();
         Test1<com.blogofyb.tools.Test> testTest1 = json.fromJson("{\"message\": \"OK\", \"status\": 200, " +
                 "\"data\": {" +
-                "\"name\": \"袁兵\"," +
+                "\"name\": \"呵呵\"," +
                 "\"age\": 19," +
                 "\"scores\": [100,100,100]}}", new TypeToken<Test1<com.blogofyb.tools.Test>>(){});
 
