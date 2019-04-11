@@ -6,6 +6,4 @@ public interface HttpCallback {
 
     void onSuccess(Response response);
 
-    void onFailed(Exception e);
-
 }

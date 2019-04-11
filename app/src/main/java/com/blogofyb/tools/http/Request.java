@@ -1,6 +1,6 @@
 package com.blogofyb.tools.http;
 
-import com.blogofyb.tools.http.interfaces.HttpCallback;
+import com.blogofyb.tools.http.interfaces.HttpCallbackE;
 import com.blogofyb.tools.json.MyJson;
 
 import java.util.HashMap;
@@ -13,7 +13,8 @@ public class Request {
     private String method;
     private int readTimeout;
     private int connectTimeout;
-    private HttpCallback listener;
+    private HttpCallbackE listener;
+    private Headers headers;
 
     private Request(Builder builder) {
         body = builder.body;
@@ -23,6 +24,7 @@ public class Request {
         readTimeout = builder.readTimeout;
         connectTimeout = builder.connectTimeout;
         listener = builder.listener;
+        headers = builder.headers;
         if (method == null || "".equals(method)) {
             if (parameters == null) {
                 method = "GET";
@@ -32,31 +34,35 @@ public class Request {
         }
     }
 
-    public int readTimeout() {
+    Headers headers() {
+        return headers;
+    }
+
+    int readTimeout() {
         return readTimeout;
     }
 
-    public int connectTimeout() {
+    int connectTimeout() {
         return connectTimeout;
     }
 
-    public HttpCallback listener() {
+    HttpCallbackE listener() {
         return listener;
     }
 
-    public String body() {
+    String body() {
         return body;
     }
 
-    public String url() {
+    String url() {
         return url;
     }
 
-    public UrlParameters parameters() {
+    UrlParameters parameters() {
         return parameters;
     }
 
-    public String method() {
+    String method() {
         return method;
     }
 
@@ -64,10 +70,11 @@ public class Request {
         private String body;
         private String url;
         private UrlParameters parameters;
+        private Headers headers;
         private String method;
         private int readTimeout = 3000;
         private int connectTimeout = 3000;
-        private HttpCallback listener;
+        private HttpCallbackE listener;
         private Map<String, Object> bodyItems;
 
         public Request build() {
@@ -163,8 +170,32 @@ public class Request {
             return this;
         }
 
-        public Builder listener(HttpCallback listener) {
+        public Builder listener(HttpCallbackE listener) {
             this.listener = listener;
+            return this;
+        }
+
+        /**
+         * 手动添加header
+         * @param key  key
+         * @param value  value
+         * @return  this
+         */
+        public Builder header(String key, String value) {
+            if (headers == null) {
+                headers = new Headers();
+            }
+            headers.add(key, value);
+            return this;
+        }
+
+        /**
+         * 通过一个Headers实例来添加header
+         * @param headers  Headers实例
+         * @return  this
+         */
+        public Builder headers(Headers headers) {
+            this.headers = headers;
             return this;
         }
     }

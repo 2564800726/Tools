@@ -16,6 +16,7 @@ public class HttpClient {
                 .readTimeout(request.readTimeout())
                 .method(request.method())
                 .listener(request.listener())
+                .headers(request.headers())
                 .build();
     }
 

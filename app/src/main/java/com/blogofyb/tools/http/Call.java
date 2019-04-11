@@ -1,6 +1,8 @@
 package com.blogofyb.tools.http;
 
+import com.blogofyb.tools.http.interfaces.ExceptionHandler;
 import com.blogofyb.tools.http.interfaces.HttpCallback;
+import com.blogofyb.tools.http.interfaces.HttpCallbackE;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,6 +11,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class Call implements Runnable {
     private HttpURLConnection httpURLConnection;
@@ -20,26 +25,36 @@ public class Call implements Runnable {
     private int readTimeout;
     private int connectTimeout;
     private HttpCallback listener;
+    private Headers headers;
+    private ExceptionHandler handler;
 
-    public Call(Builder builder) {
-        this.url = builder.url;
-        this.body = builder.body;
-        this.method = builder.method;
-        this.readTimeout = builder.readTimeout;
-        this.connectTimeout = builder.connectTimeout;
-        this.listener = builder.listener;
+    private Call(Builder builder) {
+        url = builder.url;
+        body = builder.body;
+        method = builder.method;
+        readTimeout = builder.readTimeout;
+        connectTimeout = builder.connectTimeout;
+        listener = builder.listener;
+        headers = builder.headers;
+        handler = builder.handler;
     }
 
     @Override
     public void run() {
         try {
             URL url = new URL(this.url);
-            System.out.println("----    " + url);
             System.out.println(body);
-            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection = this.url.startsWith("https")
+                    ? (HttpsURLConnection) url.openConnection()
+                    : (HttpURLConnection) url.openConnection();
             httpURLConnection.setReadTimeout(readTimeout);
             httpURLConnection.setConnectTimeout(connectTimeout);
             httpURLConnection.setRequestMethod(method);
+            if (headers != null) {
+                for (Map.Entry<String, String> entry : headers.headers().entrySet()) {
+                    httpURLConnection.setRequestProperty(entry.getKey() + ": ", entry.getValue());
+                }
+            }
             if (body != null) {
                 httpURLConnection.setDoOutput(true);
                 bufferedWriter = new BufferedWriter(
@@ -60,7 +75,11 @@ public class Call implements Runnable {
             listener.onSuccess(response);
         } catch (Exception e) {
             e.printStackTrace();
-            listener.onFailed(e);
+            if (listener instanceof HttpCallbackE) {
+                ((HttpCallbackE) listener).onFailed(e);
+            } else if (handler != null) {
+                handler.onFailed(e);
+            }
         } finally {
             if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
@@ -82,45 +101,67 @@ public class Call implements Runnable {
         }
     }
 
-    public static class Builder {
+    static class Builder {
         private String url;
         private String body;
         private String method;
         private int readTimeout;
         private int connectTimeout;
         private HttpCallback listener;
+        private Headers headers;
+        private ExceptionHandler handler;
 
-        public Call build() {
+        Call build() {
+            check();
             return new Call(this);
         }
 
-        public Builder url(String url) {
+        private void check() {
+            if (url == null) {
+                throw new RuntimeException("url cannot be null.");
+            }
+            if (listener == null) {
+                throw new RuntimeException("listener cannot be null.");
+            }
+        }
+
+        Builder exceptionHandler(ExceptionHandler handler) {
+            this.handler = handler;
+            return this;
+        }
+
+        Builder url(String url) {
             this.url = url;
             return this;
         }
 
-        public Builder body(String body) {
+        Builder body(String body) {
             this.body = body;
             return this;
         }
 
-        public Builder method(String method) {
+        Builder method(String method) {
             this.method = method;
             return this;
         }
 
-        public Builder readTimeout(int readTimeout) {
+        Builder readTimeout(int readTimeout) {
             this.readTimeout = readTimeout;
             return this;
         }
 
-        public Builder connectTimeout(int connectTimeout) {
+        Builder connectTimeout(int connectTimeout) {
             this.connectTimeout = connectTimeout;
             return this;
         }
 
-        public Builder listener(HttpCallback listener) {
+        Builder listener(HttpCallbackE listener) {
             this.listener = listener;
+            return this;
+        }
+
+        Builder headers(Headers headers) {
+            this.headers = headers;
             return this;
         }
     }
