@@ -1,10 +1,13 @@
 package com.blogofyb.tools.img;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.ImageView;
 
+import com.blogofyb.tools.img.encrypt.MD5Encrypt;
 import com.blogofyb.tools.img.interfaces.Cache;
 import com.blogofyb.tools.img.interfaces.Compressor;
+import com.blogofyb.tools.img.interfaces.Encrypt;
 import com.blogofyb.tools.img.interfaces.ImageHandler;
 import com.blogofyb.tools.thread.ThreadManager;
 
@@ -44,7 +47,11 @@ public class DefaultImageHandler implements ImageHandler {
     private void cacheImage() {
         Cache cache = options.cache();
         if (cache != null) {
-            cache.put(options.url(), img);
+            Encrypt encrypt = options.encrypt();
+            if (encrypt == null) {
+                encrypt = MD5Encrypt.getInstance();
+            }
+            cache.put(encrypt.encrypt(options.url()), img);
         }
     }
 

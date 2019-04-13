@@ -39,6 +39,10 @@ public class DiskLruCacheOnly implements Cache {
         FileOutputStream out = null;
         try {
             File file = new File(CACHE_DIR + File.separator + key);
+            File parentFile = file.getParentFile();
+            if (!parentFile.exists()) {
+                parentFile.mkdir();
+            }
             if (!file.exists() && file.createNewFile()) {
                 out = new FileOutputStream(file);
                 value.compress(Bitmap.CompressFormat.JPEG, 100, out);

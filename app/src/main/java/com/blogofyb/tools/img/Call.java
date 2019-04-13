@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.blogofyb.tools.img.encrypt.MD5Encrypt;
 import com.blogofyb.tools.img.interfaces.Cache;
 import com.blogofyb.tools.img.interfaces.Encrypt;
 import com.blogofyb.tools.img.interfaces.ImageHandler;
@@ -32,9 +33,11 @@ public class Call implements Runnable {
         Cache cache = options.cache();
         if (cache != null) {
             Encrypt encrypt = options.encrypt();
-            if (encrypt != null) {
-                img = cache.get(options.url());
+            if (encrypt == null) {
+                encrypt = MD5Encrypt.getInstance();
             }
+            Log.e("TAG ", encrypt.encrypt(options.url()));
+            img = cache.get(encrypt.encrypt(options.url()));
         }
         if (img == null) {
             Object obj = loadImageFromInternet();
@@ -47,6 +50,8 @@ public class Call implements Runnable {
                     callback.handleImage((Bitmap) obj, options);
                 }
             }
+        } else {
+            callback.handleImage(img, options);
         }
     }
 

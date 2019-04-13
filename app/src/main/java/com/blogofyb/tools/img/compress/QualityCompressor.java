@@ -2,12 +2,14 @@ package com.blogofyb.tools.img.compress;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.blogofyb.tools.img.CompressOptions;
 import com.blogofyb.tools.img.interfaces.Compressor;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class QualityCompressor implements Compressor {
     private static volatile QualityCompressor instance;
@@ -34,12 +36,19 @@ public class QualityCompressor implements Compressor {
         int maxSize = options.getMaxSize();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         raw.compress(Bitmap.CompressFormat.PNG, quality, out);
-        while (raw.getRowBytes() > maxSize && quality > 10) {
+        while (raw.getByteCount() > maxSize && quality > 10) {
             quality -= 5;
             out.reset();
             raw.compress(Bitmap.CompressFormat.PNG, quality, out);
         }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        return BitmapFactory.decodeStream(in);
+        raw = BitmapFactory.decodeStream(in);
+        try {
+            out.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return raw;
     }
 }
