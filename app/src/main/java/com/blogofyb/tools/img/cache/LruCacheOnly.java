@@ -5,7 +5,7 @@ import android.util.LruCache;
 
 import com.blogofyb.tools.img.interfaces.Cache;
 
-public class LruCacheOnly implements Cache<String, Bitmap> {
+public class LruCacheOnly implements Cache {
     private LruCache<String, Bitmap> lruCache;
     private final int MAX_SIZE = (int) Runtime.getRuntime().maxMemory() / 8;
 

@@ -1,5 +1,7 @@
 package com.blogofyb.tools;
 
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.blogofyb.tools.http.HttpClient;
@@ -14,6 +16,8 @@ import com.blogofyb.tools.thread.ThreadManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Instrumented test, which will execute on an Android device.
  *
@@ -23,41 +27,8 @@ import org.junit.runner.RunWith;
 public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() {
-        MyJson json = new MyJson();
-        Test1<com.blogofyb.tools.Test> testTest1 = json.fromJson("{\"message\": \"OK\", \"status\": 200, " +
-                "\"data\": {" +
-                "\"name\": \"呵呵\"," +
-                "\"age\": 19," +
-                "\"scores\": [100,100,100]}}", new TypeToken<Test1<com.blogofyb.tools.Test>>(){});
+        Context appContext = InstrumentationRegistry.getTargetContext();
 
-        testTest1 = json.fromJson(json.fromObject(testTest1), new TypeToken<Test1<com.blogofyb.tools.Test>>(){});
-        System.out.println(testTest1.getData().getScores());
-        HttpClient client = new HttpClient();
-        UrlParameters parameters = new UrlParameters();
-        parameters.addParameter("testKey1", "testValue1");
-        parameters.addParameter("testKey2", "testValue2");
-        Request request = new Request.Builder().url("http://www.baidu.com")
-                .method("POST")
-                .post("name", "xiao ming")
-                .post("age", 2)
-                .parameters("testKey1", "testValue1")
-                .header("haha", "hehe")
-                .listener(new HttpCallbackE() {
-                    @Override
-                    public void onSuccess(final Response response) {
-                        ThreadManager.getInstance().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                System.out.println(response.responseBody());
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailed(Exception e) {
-
-                    }
-                }).build();
-        ThreadManager.getInstance().execute(client.newCall(request));
+        assertEquals("com.blogofyb.app", appContext.getPackageName());
     }
 }

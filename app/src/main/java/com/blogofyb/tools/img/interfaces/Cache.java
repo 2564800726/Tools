@@ -1,9 +1,11 @@
 package com.blogofyb.tools.img.interfaces;
 
-public interface Cache<K, V> {
+import android.graphics.Bitmap;
 
-    void put(K key, V value);
+public interface Cache {
 
-    V get(K key);
+    void put(String key, Bitmap value);
+
+    Bitmap get(String key);
 
 }

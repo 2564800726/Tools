@@ -11,8 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class DiskLruCacheOnly implements Cache<String, Bitmap> {
-    private final int MAX_SIZE = 100 * 1024 * 1024;
+public class DiskLruCacheOnly implements Cache {
     private Context context;
     private final String CACHE_DIR;
     private BitmapFactory.Options options;

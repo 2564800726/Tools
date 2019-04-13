@@ -1,10 +1,25 @@
 package com.blogofyb.tools.img.encrypt;
 
-import com.blogofyb.tools.img.encrypt.interfaces.Encrypt;
+import com.blogofyb.tools.img.interfaces.Encrypt;
 
 import java.security.MessageDigest;
 
-public class MD5Encrypt implements Encrypt<String, String> {
+public class MD5Encrypt implements Encrypt {
+    private volatile static MD5Encrypt md5Encrypt;
+
+    private MD5Encrypt() {}
+
+    public static MD5Encrypt getInstance() {
+        if (md5Encrypt == null) {
+            synchronized(MD5Encrypt.class) {
+                if (md5Encrypt == null) {
+                    md5Encrypt = new MD5Encrypt();
+                }
+            }
+        }
+        return md5Encrypt;
+    }
+
     @Override
     public String encrypt(String before) {
         return hashKeyFromUrl(before);
