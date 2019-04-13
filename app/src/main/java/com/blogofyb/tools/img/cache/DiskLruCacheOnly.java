@@ -14,15 +14,10 @@ import java.io.IOException;
 public class DiskLruCacheOnly implements Cache {
     private Context context;
     private final String CACHE_DIR;
-    private BitmapFactory.Options options;
 
     public DiskLruCacheOnly(Context context, String cacheDirName) {
         this.context = context;
         CACHE_DIR = context.getExternalCacheDir().getPath() + File.separator + cacheDirName;
-    }
-
-    public void setOptions(BitmapFactory.Options options) {
-        this.options = options;
     }
 
     @Override
@@ -70,11 +65,7 @@ public class DiskLruCacheOnly implements Cache {
             } else {
                 return null;
             }
-            if (options != null) {
-                return BitmapFactory.decodeFileDescriptor(in.getFD(), null, options);
-            } else {
-                return BitmapFactory.decodeFileDescriptor(in.getFD());
-            }
+            return BitmapFactory.decodeStream(in);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

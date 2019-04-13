@@ -2,6 +2,7 @@ package com.blogofyb.tools.img.cache;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.blogofyb.tools.img.interfaces.Cache;
 
@@ -25,9 +26,6 @@ public class LruAndDiskLruCache implements Cache {
         Bitmap img = lruCache.get(key);
         if (img == null) {
             img = diskLruCache.get(key);
-            if (img == null) {
-
-            }
         }
         return img;
     }

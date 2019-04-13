@@ -36,7 +36,6 @@ public class Call implements Runnable {
             if (encrypt == null) {
                 encrypt = MD5Encrypt.getInstance();
             }
-            Log.e("TAG ", encrypt.encrypt(options.url()));
             img = cache.get(encrypt.encrypt(options.url()));
         }
         if (img == null) {
