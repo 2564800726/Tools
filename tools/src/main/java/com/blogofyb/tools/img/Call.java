@@ -11,6 +11,8 @@ import com.blogofyb.tools.img.interfaces.ImageHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -29,7 +31,17 @@ public class Call implements Runnable {
 
     @Override
     public void run() {
-        Bitmap img = null;
+        if (options.url().startsWith("http")) {
+            if (!loadImageFromCache()) {
+                loadImageFromInternet();
+            }
+        } else {
+            loadImageFromDisk();
+        }
+    }
+
+    private boolean loadImageFromCache() {
+        Bitmap img;
         Cache cache = options.cache();
         if (cache != null) {
             Encrypt encrypt = options.encrypt();
@@ -37,24 +49,37 @@ public class Call implements Runnable {
                 encrypt = MD5Encrypt.getInstance();
             }
             img = cache.get(encrypt.encrypt(options.url()));
-        }
-        if (img == null) {
-            Object obj = loadImageFromInternet();
-            if (obj instanceof Exception) {
-                callback.failed((Exception) obj, options);
+            if (img != null) {
+                callback.handleImage(img, options);
+                return true;
             } else {
-                if (obj == null) {
-                    callback.failed(null, options);
-                } else {
-                    callback.handleImage((Bitmap) obj, options);
-                }
+                return false;
             }
         } else {
-            callback.handleImage(img, options);
+            return false;
         }
     }
 
-    private Object loadImageFromInternet() {
+    private void loadImageFromDisk() {
+        Bitmap img;
+        if (options.scaleImage()) {
+            BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+            decodeOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(options.url(), decodeOptions);
+            decodeOptions.inSampleSize = ImageUtils.calculateInSampleSize(options.target(), decodeOptions);
+            decodeOptions.inJustDecodeBounds = false;
+            img = BitmapFactory.decodeFile(options.url(), decodeOptions);
+        } else {
+            img = BitmapFactory.decodeFile(options.url());
+        }
+        if (img != null) {
+            callback.handleImage(img, options);
+        } else {
+            callback.failed(new FileNotFoundException(), options);
+        }
+    }
+
+    private void loadImageFromInternet() {
         try {
             Log.e("TAG", "LOAD");
             URL url = new URL(options.url());
@@ -77,10 +102,10 @@ public class Call implements Runnable {
                 in.reset();
                 img = BitmapFactory.decodeStream(in, null, decodeOptions);
             }
-            return img;
+            callback.handleImage(img, options);
         } catch (Exception e) {
             e.printStackTrace();
-            return e;
+            callback.failed(e, options);
         } finally {
             if (connection != null) {
                 connection.disconnect();

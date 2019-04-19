@@ -2,7 +2,6 @@ package com.blogofyb.tools.img.compress;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.blogofyb.tools.img.CompressOptions;
 import com.blogofyb.tools.img.interfaces.Compressor;

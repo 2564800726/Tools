@@ -1,7 +1,6 @@
 package com.blogofyb.tools.img;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.blogofyb.tools.img.encrypt.MD5Encrypt;

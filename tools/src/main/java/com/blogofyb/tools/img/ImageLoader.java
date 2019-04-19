@@ -4,8 +4,8 @@ import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.widget.ImageView;
 
-import com.blogofyb.tools.img.interfaces.Compressor;
 import com.blogofyb.tools.img.interfaces.Cache;
+import com.blogofyb.tools.img.interfaces.Compressor;
 import com.blogofyb.tools.img.interfaces.Encrypt;
 import com.blogofyb.tools.img.interfaces.ImageHandler;
 import com.blogofyb.tools.thread.ThreadManager;

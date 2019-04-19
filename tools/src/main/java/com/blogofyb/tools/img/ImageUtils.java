@@ -1,12 +1,7 @@
 package com.blogofyb.tools.img;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
-
-import com.blogofyb.tools.img.interfaces.Cache;
-import com.blogofyb.tools.img.interfaces.Encrypt;
-import com.blogofyb.tools.thread.ThreadManager;
 
 public class ImageUtils {
     public static int calculateInSampleSize(ImageView img, BitmapFactory.Options options) {

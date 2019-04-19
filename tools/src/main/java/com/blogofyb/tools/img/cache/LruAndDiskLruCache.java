@@ -2,7 +2,6 @@ package com.blogofyb.tools.img.cache;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import com.blogofyb.tools.img.interfaces.Cache;
 
