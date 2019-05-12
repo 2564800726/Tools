@@ -43,7 +43,6 @@ public class Call implements Runnable {
     public void run() {
         try {
             URL url = new URL(this.url);
-            System.out.println(body);
             httpURLConnection = this.url.startsWith("https")
                     ? (HttpsURLConnection) url.openConnection()
                     : (HttpURLConnection) url.openConnection();
@@ -155,7 +154,7 @@ public class Call implements Runnable {
             return this;
         }
 
-        Builder listener(HttpCallbackE listener) {
+        Builder listener(HttpCallback listener) {
             this.listener = listener;
             return this;
         }

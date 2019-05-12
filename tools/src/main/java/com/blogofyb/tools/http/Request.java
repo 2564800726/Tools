@@ -1,6 +1,6 @@
 package com.blogofyb.tools.http;
 
-import com.blogofyb.tools.http.interfaces.HttpCallbackE;
+import com.blogofyb.tools.http.interfaces.HttpCallback;
 import com.blogofyb.tools.json.MyJson;
 
 import java.util.HashMap;
@@ -13,7 +13,7 @@ public class Request {
     private String method;
     private int readTimeout;
     private int connectTimeout;
-    private HttpCallbackE listener;
+    private HttpCallback listener;
     private Headers headers;
 
     private Request(Builder builder) {
@@ -46,7 +46,7 @@ public class Request {
         return connectTimeout;
     }
 
-    HttpCallbackE listener() {
+    HttpCallback listener() {
         return listener;
     }
 
@@ -74,7 +74,7 @@ public class Request {
         private String method;
         private int readTimeout = 3000;
         private int connectTimeout = 3000;
-        private HttpCallbackE listener;
+        private HttpCallback listener;
         private Map<String, Object> bodyItems;
 
         public Request build() {
@@ -170,7 +170,7 @@ public class Request {
             return this;
         }
 
-        public Builder listener(HttpCallbackE listener) {
+        public Builder listener(HttpCallback listener) {
             this.listener = listener;
             return this;
         }
