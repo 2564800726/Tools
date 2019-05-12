@@ -2,6 +2,7 @@ package com.blogofyb.tools.img;
 
 import android.content.Context;
 import android.support.annotation.DrawableRes;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.blogofyb.tools.img.interfaces.Cache;
@@ -14,6 +15,7 @@ public class ImageLoader
 {
     private Options options;
     private ImageHandler callback;
+    private ImageViewToken token;
 
     public ImageLoader with(Context context) {
         if (options == null) {
@@ -23,16 +25,25 @@ public class ImageLoader
         return this;
     }
 
-    public ImageLoader load(String url) {
-        if (options == null) {
-            throw new RuntimeException("need a Context or Options");
+    public ImageLoader withTag(Object tag) {
+        if (token == null) {
+            token = new ImageViewToken();
         }
-        options.url(url);
+        token.setTag(tag);
+        return this;
+    }
+
+    public ImageLoader load(String url) {
+        if (token == null) {
+            token = new ImageViewToken();
+        }
+        token.setUrl(url);
         return this;
     }
 
     public ImageLoader apply(Options options) {
         this.options = options;
+        checkOptions();
         return this;
     }
 
@@ -42,28 +53,44 @@ public class ImageLoader
     }
 
     public void into(ImageView target) {
-        if (options == null) {
-            throw new RuntimeException("need a Context or Options");
+        if (token == null) {
+            token = new ImageViewToken();
         }
-        options.target(target);
+        token.setTarget(target);
         loadImage();
     }
 
+    public void into(ImageView target, boolean scaleImage) {
+        options.scaleImage = scaleImage;
+        into(target);
+    }
+
     private void loadImage() {
-        checkOptions();
+        checkToken();
         if (callback == null) {
             callback = new DefaultImageHandler();
         }
         if (options.place != 0) {
-            options.target.setImageResource(options.place());
+            token.getTarget().setImageResource(options.place());
         }
-        options.target().setTag(options.tag());
-        ThreadManager.getInstance().execute(new Call(options, callback));
+        token.getTarget().setTag(token.getTag());
+        ThreadManager.getInstance().execute(new Call(options, callback, token));
+        token = null;
+    }
+
+    public Options getOptions() {
+        return options;
     }
 
     private void checkOptions() {
-        if (options.url == null || options.target == null || options.context == null) {
+        if (options.context == null || (options.compressImage && (options.compressors == null || options.compressOptions == null))) {
             throw new RuntimeException("parameter are missing in Options");
+        }
+    }
+
+    private void checkToken() {
+        if (token.getUrl() == null || token.getTarget() == null) {
+            throw new RuntimeException("parameter are missing in ImageViewToken");
         }
     }
 
@@ -71,32 +98,20 @@ public class ImageLoader
         private Compressor[] compressors;
         private int place;
         private int failed;
-        private Object tag;
         private Cache cache;
-        private ImageView target;
-        private String url;
         private Context context;
-        private boolean scaleImage;
+        private boolean compressImage;
         private Encrypt encrypt;
-        private CompressOptions options;
-
-        public Options url(String url) {
-            this.url = url;
-            return this;
-        }
-
-        public Options target(ImageView target) {
-            this.target = target;
-            return this ;
-        }
+        private CompressOptions compressOptions;
+        private boolean scaleImage;
 
         public Options compressor(Compressor... compressors) {
             this.compressors = compressors;
             return this;
         }
 
-        public Options tag(Object tag) {
-            this.tag = tag;
+        public Options compressImage(boolean compressImage) {
+            this.compressImage = compressImage;
             return this;
         }
 
@@ -126,57 +141,49 @@ public class ImageLoader
         }
 
         public Options decodeOptions(boolean scaleImage) {
-            this.scaleImage = scaleImage;
+            this.compressImage = scaleImage;
             return this;
         }
 
         public Options compressOptions(CompressOptions options) {
-            this.options = options;
+            this.compressOptions = options;
             return this;
         }
 
-        String url() {
-            return url;
+        public boolean compressImage() {
+            return compressImage;
         }
 
-        Compressor[] compressors() {
+        public Compressor[] compressors() {
             return compressors;
         }
 
-        int place() {
+        public int place() {
             return place;
         }
 
-        int failed() {
+        public int failed() {
             return failed;
         }
 
-        Object tag() {
-            return tag;
-        }
-
-        Cache cache() {
+        public Cache cache() {
             return cache;
         }
 
-        ImageView target() {
-            return target;
-        }
-
-        Context context() {
+        public Context context() {
             return context;
         }
 
-        boolean scaleImage() {
+        public boolean scaleImage() {
             return scaleImage;
         }
 
-        Encrypt encrypt() {
+        public Encrypt encrypt() {
             return encrypt;
         }
 
-        CompressOptions compressOptions() {
-            return options;
+        public CompressOptions compressOptions() {
+            return compressOptions;
         }
     }
 

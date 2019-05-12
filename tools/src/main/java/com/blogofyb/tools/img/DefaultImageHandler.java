@@ -1,7 +1,6 @@
 package com.blogofyb.tools.img;
 
 import android.graphics.Bitmap;
-import android.widget.ImageView;
 
 import com.blogofyb.tools.img.encrypt.MD5Encrypt;
 import com.blogofyb.tools.img.interfaces.Cache;
@@ -11,31 +10,27 @@ import com.blogofyb.tools.img.interfaces.ImageHandler;
 import com.blogofyb.tools.thread.ThreadManager;
 
 public class DefaultImageHandler implements ImageHandler {
-    private ImageLoader.Options options;
-    private Bitmap img;
 
     @Override
-    public void handleImage(Bitmap img, ImageLoader.Options options) {
-        this.options = options;
-        this.img = img;
-        compressImage();
-        displayImg();
-        cacheImage();
+    public void handleImage(Bitmap img, ImageViewToken token, ImageLoader.Options options) {
+        compressImage(options, img);
+        displayImg(token, img);
+        cacheImage(options, img, token);
     }
 
     @Override
-    public void failed(Exception e, final ImageLoader.Options options) {
+    public void failed(Exception e, final ImageViewToken token, final ImageLoader.Options options) {
         ThreadManager.getInstance().post(new Runnable() {
             @Override
             public void run() {
-                options.target().setImageResource(options.failed());
+                token.getTarget().setImageResource(options.failed());
             }
         });
     }
 
-    private void compressImage() {
+    private void compressImage(ImageLoader.Options options, Bitmap img) {
         Compressor[] compressors = options.compressors();
-        if (compressors != null) {
+        if (options.compressImage() && compressors != null) {
             for (Compressor compressor : compressors) {
                 img = compressor.compress(img, options.compressOptions());
             }
@@ -43,25 +38,23 @@ public class DefaultImageHandler implements ImageHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private void cacheImage() {
+    private void cacheImage(ImageLoader.Options options, Bitmap img, ImageViewToken token) {
         Cache cache = options.cache();
         if (cache != null) {
             Encrypt encrypt = options.encrypt();
             if (encrypt == null) {
                 encrypt = MD5Encrypt.getInstance();
             }
-            cache.put(encrypt.encrypt(options.url()), img);
+            cache.put(encrypt.encrypt(token.getUrl()), img);
         }
     }
 
-    private void displayImg() {
+    private void displayImg(final ImageViewToken token, final Bitmap img) {
         ThreadManager.getInstance().post(new Runnable() {
             @Override
             public void run() {
-                ImageView target = options.target();
-                Object tag = options.tag();
-                if (target.getTag().equals(tag)) {
-                    target.setImageBitmap(img);
+                if (token.getTarget().getTag().equals(token.getTag())) {
+                    token.getTarget().setImageBitmap(img);
                 }
             }
         });

@@ -1,4 +1,4 @@
-package com.blogofyb.tools;
+package com.blogofyb.demo;
 
 import org.junit.Test;
 

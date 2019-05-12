@@ -2,7 +2,6 @@ package com.blogofyb.tools.img;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.blogofyb.tools.img.encrypt.MD5Encrypt;
 import com.blogofyb.tools.img.interfaces.Cache;
@@ -11,7 +10,6 @@ import com.blogofyb.tools.img.interfaces.ImageHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,18 +18,20 @@ import java.net.URL;
 
 public class Call implements Runnable {
     private ImageLoader.Options options;
+    private ImageViewToken token;
     private ImageHandler callback;
     private HttpURLConnection connection;
     private InputStream in;
 
-    Call(ImageLoader.Options options, ImageHandler callback) {
+    Call(ImageLoader.Options options, ImageHandler callback, ImageViewToken token) {
         this.options = options;
         this.callback = callback;
+        this.token = token;
     }
 
     @Override
     public void run() {
-        if (options.url().startsWith("http")) {
+        if (token.getUrl().startsWith("http")) {
             if (!loadImageFromCache()) {
                 loadImageFromInternet();
             }
@@ -48,9 +48,9 @@ public class Call implements Runnable {
             if (encrypt == null) {
                 encrypt = MD5Encrypt.getInstance();
             }
-            img = cache.get(encrypt.encrypt(options.url()));
+            img = cache.get(encrypt.encrypt(token.getUrl()));
             if (img != null) {
-                callback.handleImage(img, options);
+                callback.handleImage(img, token, options);
                 return true;
             } else {
                 return false;
@@ -65,24 +65,23 @@ public class Call implements Runnable {
         if (options.scaleImage()) {
             BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
             decodeOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(options.url(), decodeOptions);
-            decodeOptions.inSampleSize = ImageUtils.calculateInSampleSize(options.target(), decodeOptions);
+            BitmapFactory.decodeFile(token.getUrl(), decodeOptions);
+            decodeOptions.inSampleSize = ImageUtils.calculateInSampleSize(token.getTarget(), decodeOptions);
             decodeOptions.inJustDecodeBounds = false;
-            img = BitmapFactory.decodeFile(options.url(), decodeOptions);
+            img = BitmapFactory.decodeFile(token.getUrl(), decodeOptions);
         } else {
-            img = BitmapFactory.decodeFile(options.url());
+            img = BitmapFactory.decodeFile(token.getUrl());
         }
         if (img != null) {
-            callback.handleImage(img, options);
+            callback.handleImage(img, token, options);
         } else {
-            callback.failed(new FileNotFoundException(), options);
+            callback.failed(new FileNotFoundException(), token, options);
         }
     }
 
     private void loadImageFromInternet() {
         try {
-            Log.e("TAG", "LOAD");
-            URL url = new URL(options.url());
+            URL url = new URL(token.getUrl());
             connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setReadTimeout(3000);
@@ -97,15 +96,15 @@ public class Call implements Runnable {
                 img.compress(Bitmap.CompressFormat.PNG, 100, out);
                 ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
                 BitmapFactory.decodeStream(in, null, decodeOptions);
-                decodeOptions.inSampleSize = ImageUtils.calculateInSampleSize(options.target(), decodeOptions);
+                decodeOptions.inSampleSize = ImageUtils.calculateInSampleSize(token.getTarget(), decodeOptions);
                 decodeOptions.inJustDecodeBounds = false;
                 in.reset();
                 img = BitmapFactory.decodeStream(in, null, decodeOptions);
             }
-            callback.handleImage(img, options);
+            callback.handleImage(img, token, options);
         } catch (Exception e) {
             e.printStackTrace();
-            callback.failed(e, options);
+            callback.failed(e, token, options);
         } finally {
             if (connection != null) {
                 connection.disconnect();

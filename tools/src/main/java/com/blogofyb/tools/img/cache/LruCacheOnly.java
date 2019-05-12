@@ -16,6 +16,7 @@ public class LruCacheOnly implements Cache {
                 return value.getByteCount();
             }
         };
+        System.out.println(MAX_SIZE);
     }
 
     @Override
