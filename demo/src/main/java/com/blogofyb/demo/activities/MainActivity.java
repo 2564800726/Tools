@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_test_http).setOnClickListener(this);
         findViewById(R.id.btn_test_image_loader).setOnClickListener(this);
         findViewById(R.id.btn_test_json).setOnClickListener(this);
+        findViewById(R.id.btn_test_recyclerview).setOnClickListener(this);
     }
 
     @Override
@@ -33,6 +34,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_test_json:
                 Intent intentForJson = new Intent(this, TestJsonActivity.class);
                 startActivity(intentForJson);
+                break;
+            case R.id.btn_test_recyclerview:
+                Intent intentForRecyclerView = new Intent(this, TestRecyclerViewActivity.class);
+                startActivity(intentForRecyclerView);
                 break;
         }
     }

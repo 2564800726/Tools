@@ -70,6 +70,9 @@ public class ImageLoader
         if (callback == null) {
             callback = new DefaultImageHandler();
         }
+        if (token.getTag().equals(token.getTarget().getTag())) {
+            return;
+        }
         if (options.place != 0) {
             token.getTarget().setImageResource(options.place());
         }
