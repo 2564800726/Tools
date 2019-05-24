@@ -10,7 +10,7 @@ public class SHAEncrypt implements Encrypt {
 
     private SHAEncrypt() {}
 
-    public SHAEncrypt getInstance() {
+    public static SHAEncrypt getInstance() {
         if (instance == null) {
             synchronized(SHAEncrypt.class) {
                 if (instance == null) {

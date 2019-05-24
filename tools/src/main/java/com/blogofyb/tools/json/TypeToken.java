@@ -2,6 +2,7 @@ package com.blogofyb.tools.json;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
 @SuppressWarnings("unchecked")
 public abstract class TypeToken<T> {

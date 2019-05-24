@@ -47,4 +47,8 @@ public class ThreadManager {
     public <T> void submit(Callable<T> commend) {
         mExecutor.submit(commend);
     }
+
+    public void cancelPost(Runnable commend) {
+        mHandler.removeCallbacks(commend);
+    }
 }

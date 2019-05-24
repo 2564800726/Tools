@@ -53,7 +53,13 @@ public class MyJson {
             for (Iterator<String> keys = jsonObject.keys(); keys.hasNext(); ) {
                 String key = keys.next();
                 Object object = jsonObject.get(key);
-                Field field = tClass.getDeclaredField(key);
+                Field field = null;
+                try {
+                    field = tClass.getDeclaredField(key);
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                    continue;
+                }
                 field.setAccessible(true);
                 Type fieldType = field.getGenericType();
                 if (fieldType instanceof ParameterizedType) {
@@ -64,7 +70,12 @@ public class MyJson {
                 } else if (object instanceof JSONObject) {
                     object = fromJson(object.toString(), TypeToken.get(fieldType));
                 }
-                field.set(value, object);
+                try {
+                    field.set(value, object);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                    field.set(value, "");
+                }
             }
             return value;
         } catch (Exception e) {

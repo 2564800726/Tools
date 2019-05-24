@@ -143,8 +143,8 @@ public class ImageLoader
             return this;
         }
 
-        public Options decodeOptions(boolean scaleImage) {
-            this.compressImage = scaleImage;
+        public Options scaleImage(boolean scaleImage) {
+            this.scaleImage = scaleImage;
             return this;
         }
 

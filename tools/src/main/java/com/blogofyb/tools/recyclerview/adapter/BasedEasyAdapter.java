@@ -15,9 +15,9 @@ public abstract class BasedEasyAdapter<HEADER, ITEM, FOOTER> extends RecyclerVie
     private final int TYPE_ITEM = 1;
     private final int TYPE_FOOTER = 2;
 
-    private HEADER mHeader;
-    private List<ITEM> mItems;
-    private FOOTER mFooter;
+    protected HEADER mHeader;
+    protected List<ITEM> mItems;
+    protected FOOTER mFooter;
 
     private OnEndListener mListener;
 
